@@ -1,1 +1,1 @@
-# Quantum-Password-
+# GA6_Quantumresistantpasswordgeneration

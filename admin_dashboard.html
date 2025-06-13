@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Quantum Passwords</title>
+    
+    <!-- Bootstrap CSS for Styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <style>
+        body {
+            background-color: #f4f7fc;
+            font-family: 'Arial', sans-serif;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .card {
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .table th {
+            background-color: #007bff;
+            color: white;
+        }
+        .search-box {
+            width: 300px;
+            margin-bottom: 15px;
+        }
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand">Admin Dashboard</a>
+            <a href="/logout" class="btn btn-danger logout-btn">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card p-4">
+            <h3 class="text-center">Stored Quantum-Generated Passwords</h3>
+
+            <!-- Search Box -->
+            <input type="text" id="search" class="form-control search-box" placeholder="Search by User ID or Hashed Password...">
+
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User ID</th>
+                            <th>Hashed Password</th>
+                            <th>QKD Shared Key</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody id="passwordTable">
+                        {% for password in passwords %}
+                        <tr>
+                            <td>{{ password[0] }}</td>
+                            <td>{{ password[1] }}</td>
+                            <td>{{ password[2] }}</td>
+                            <td>{{ password[3] if password[3] else 'N/A' }}</td>
+                            <td>{{ password[4] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for Search Functionality -->
+    <script>
+        document.getElementById('search').addEventListener('input', function() {
+            let searchValue = this.value.toLowerCase();
+            let rows = document.querySelectorAll('#passwordTable tr');
+
+            rows.forEach(row => {
+                let text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchValue) ? '' : 'none';
+            });
+        });
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

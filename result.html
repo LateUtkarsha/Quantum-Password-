@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Quantum Password Generation Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2em;
+            background-color: #004b84;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: #ffffffb6;
+            border: 1px solid #ccc;
+            padding: 2em;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+
+        h1,
+        h2,
+        h3 {
+            text-align: center;
+            margin-top: 0;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 1.5em;
+            font-size: 0.95em;
+        }
+
+        .info-block {
+            margin: 1em 0;
+            background-color: #ffffffb6;
+            border: 1px solid #eee;
+            padding: 1em;
+            border-radius: 4px;
+        }
+
+        .password-box {
+            border: 2px dashed #888;
+            padding: 1em;
+            margin: 0 auto;
+            max-width: 83%;
+            border-radius: 4px;
+            text-align: center;
+            word-break: break-all;
+            /* handle very long strings gracefully */
+        }
+
+        .password-box code {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .copy-section {
+            display: flex;
+            justify-content: center;
+            margin-top: 0.5em;
+        }
+
+        .copy-button {
+            padding: 0.5em 1em;
+            cursor: pointer;
+            border: 1px solid #666;
+            background-color: #d48100;
+            /* Original background color */
+            transition: background-color 0.3s, color 0.3s;
+            border-radius: 4px;
+            margin-left: 0.5em;
+            color: #fff;
+        }
+
+        .copy-button:hover {
+            background-color: #d4830058;
+        }
+
+        /* Classes for indicating copy success */
+        .copied-state {
+            background-color: green !important;
+            color: #fff !important;
+        }
+
+        pre {
+            background-color: #000000cc;
+            /* Black background */
+            color: #ffffff;
+            /* White text color */
+            padding: 1em;
+            border-radius: 4px;
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow: visible;
+        }
+
+        .footer-btn {
+            text-align: center;
+            margin-top: 2em;
+        }
+
+        .footer-btn a {
+            text-decoration: none;
+            color: #fff;
+            background-color: #d48100;
+            padding: 0.75em 1.25em;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .footer-btn a:hover {
+            background-color: #d4830058;
+        }
+
+        /* Simple highlight for warning or okay validation statuses */
+        .validation-warning {
+            color: #b71c1c;
+            /* red */
+            font-weight: bold;
+        }
+
+        .validation-ok {
+            color: #2e7d32;
+            /* green */
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Quantum Password Generation Results</h1>
+        <p class="subtitle">
+            Below is your newly generated password, along with any additional information or validations you selected.
+        </p>
+
+        <!-- Generated Password -->
+        <div class="info-block">
+            <h3>Your Password</h3>
+            <div class="password-box">
+                <code>{{ password }}</code>
+            </div>
+            <div class="copy-section">
+                <!-- Pass `this` (the button element) as the first argument, 
+                     and '{{ password }}' as the second argument -->
+                <button class="copy-button" onclick="copyToClipboard(this, '{{ password }}')">Copy Password</button>
+            </div>
+        </div>
+
+        <!-- Hashed Password (conditional) -->
+        {% if hashed_password %}
+        <div class="info-block">
+            <h3>SHA-3 Hashed Password</h3>
+            <div class="password-box">
+                <code>{{ hashed_password }}</code>
+            </div>
+            <div class="copy-section">
+                <button class="copy-button" onclick="copyToClipboard(this, '{{ hashed_password }}')">Copy Hash</button>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Validation Status (conditional) -->
+        {% if validation_message %}
+        <div class="info-block">
+            <h3>Validation Status</h3>
+            {% if "WARNING" in validation_message %}
+            <p class="validation-warning">{{ validation_message }}</p>
+            {% elif "OK" in validation_message %}
+            <p class="validation-ok">{{ validation_message }}</p>
+            {% else %}
+            <p>{{ validation_message }}</p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Entropy Info -->
+        <div class="info-block">
+            <h3>Entropy Measures</h3>
+            <p><strong>Classical Entropy:</strong> {{ "%.4f"|format(classical_entropy) }} bits</p>
+            <p><strong>Approx. Quantum Entropy:</strong> {{ "%.4f"|format(quantum_entropy) }} bits</p>
+        </div>
+
+        <!-- QKD Info (conditional) -->
+        {% if qkd_info %}
+        <div class="info-block">
+            <h3>QKD Simulation Info</h3>
+            <pre>{{ qkd_info }}</pre>
+        </div>
+        {% endif %}
+
+        <!-- Process Log -->
+        <div class="info-block">
+            <h3>Generation Log</h3>
+            <pre>{{ process_log }}</pre>
+        </div>
+
+        <!-- Button to go back / generate again -->
+        <div class="footer-btn">
+            <a href="/">Generate Another Password</a>
+        </div>
+    </div>
+
+    <!-- JavaScript for Copy Functionality -->
+    <script>
+        function copyToClipboard(buttonElem, text) {
+            navigator.clipboard.writeText(text).then(function () {
+                // Button turns green and text changes to "Copied"
+                buttonElem.classList.add('copied-state');
+                const originalText = buttonElem.textContent;
+                buttonElem.textContent = "Copied";
+
+                // Revert after 2 seconds
+                setTimeout(() => {
+                    buttonElem.classList.remove('copied-state');
+                    buttonElem.textContent = originalText;
+                }, 2000);
+
+            }, function (err) {
+                console.error('Error copying text: ' + err);
+            });
+        }
+    </script>
+</body>
+
+</html>

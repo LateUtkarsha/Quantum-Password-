@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Quantum-Resistant Password Generator</title>
+    <style>
+        /* Basic reset and body styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2em;
+            background-color: #004b84;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: #ffffffb6;
+            border: 1px solid #ccc;
+            padding: 2em;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 0;
+        }
+
+        p.intro {
+            text-align: center;
+            color: #666;
+            margin-bottom: 2em;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-field {
+            margin-bottom: 1.5em;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.4em;
+        }
+
+        .description {
+            font-size: 0.9em;
+            color: #555;
+            margin-bottom: 0.4em;
+        }
+
+        .input-field input[type="number"],
+        .input-field select {
+            width: 10%;
+            padding: 0.5em;
+            font-size: 1em;
+            margin-bottom: 0.3em;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* For checkboxes in the character set selection */
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            padding-left: 1.5em;
+        }
+
+        .checkbox-group {
+            /* If you want them all in one row without wrapping, you can use flex or inline-flex here too. */
+            display: flex;
+            flex-wrap: wrap;
+            /* or remove if you want them strictly on one line */
+            gap: 1em;
+            /* some spacing between each group */
+        }
+
+        .checkbox-inline {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        /* Optional styling for spacing between checkbox and label */
+        .checkbox-inline input[type="checkbox"] {
+            margin-right: 0.4em;
+        }
+
+
+        .button {
+            background-color: #d48100;
+            color: white;
+            padding: 0.7em 1em;
+            font-size: 1em;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            align-self: center;
+            /* center the button */
+            margin-top: 1em;
+        }
+
+        .button:hover {
+            background-color: #d4830058;
+        }
+
+        .help-box {
+            background-color: #f0f8ff;
+            border-left: 4px solid green;
+            padding: 0.8em;
+            font-size: 0.9em;
+            color: #333;
+            margin-top: 0.3em;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Quantum-Resistant Password Generator</h1>
+        <p class="intro">
+            Customize the parameters below to generate a secure quantum-resistant password.
+            This tool uses quantum principles (QNN) to produce high-entropy passwords, with optional hashing and
+            validation.
+        </p>
+
+        <form action="/generate_password" method="POST">
+            <!-- Qubit Count -->
+            <div class="input-field">
+                <label for="num_qubits">Number of Qubits <span style="color:red;">*</span></label>
+                <div class="description">
+                    Determines how many qubits the Quantum Neural Network uses.
+                    More qubits can increase complexity (and runtime).
+                    Typically 6–12 is enough for demonstration.
+                </div>
+                <input type="number" name="num_qubits" id="num_qubits" value="8" min="1" required>
+            </div>
+
+            <!-- Shots -->
+            <div class="input-field">
+                <label for="shots">Number of Shots (Measurements) <span style="color:red;">*</span></label>
+                <div class="description">
+                    Each shot measures the quantum circuit once.
+                    Multiple shots can refine the most frequent outcome.
+                    1–5 is fine for quick demos.
+                </div>
+                <input type="number" name="shots" id="shots" value="1" min="1" required>
+            </div>
+
+            <!-- Password Length -->
+            <div class="input-field">
+                <label for="password_length">Password Length <span style="color:red;">*</span></label>
+                <div class="description">
+                    Final desired length of your generated password.
+                    A length of 12–16 is recommended for strong security.
+                </div>
+                <input type="number" name="password_length" id="password_length" value="12" min="4" required>
+            </div>
+
+            <!-- Character Sets -->
+            <div class="input-field">
+                <label>Choose Character Sets:</label>
+                <div class="description">
+                    Select which types of characters you want to include in your generated password.
+                </div>
+
+                <!-- A container that holds all checkboxes in a row or wrapping lines -->
+                <div class="checkbox-group">
+                    <div class="checkbox-inline">
+                        <input type="checkbox" name="include_lowercase" value="yes" id="include_lowercase" checked>
+                        <label for="include_lowercase">Lowercase (a-z)</label>
+                    </div>
+
+                    <div class="checkbox-inline">
+                        <input type="checkbox" name="include_uppercase" value="yes" id="include_uppercase" checked>
+                        <label for="include_uppercase">Uppercase (A-Z)</label>
+                    </div>
+
+                    <div class="checkbox-inline">
+                        <input type="checkbox" name="include_digits" value="yes" id="include_digits" checked>
+                        <label for="include_digits">Digits (0-9)</label>
+                    </div>
+
+                    <div class="checkbox-inline">
+                        <input type="checkbox" name="include_symbols" value="yes" id="include_symbols">
+                        <label for="include_symbols">Symbols (!@#$%^&amp;*()-_=+)</label>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Apply SHA-3? -->
+            <div class="input-field">
+                <label for="apply_sha3">Apply SHA-3 Hashing?</label>
+                <div class="description">
+                    If <strong>Yes</strong>, the final generated password is hashed with SHA-3
+                    (useful for storing or advanced security). If <strong>No</strong>, you get the raw password.
+                </div>
+                <select name="apply_sha3" id="apply_sha3">
+                    <option value="yes" selected>Yes</option>
+                    <option value="no">No</option>
+                </select>
+            </div>
+
+            <!-- Validate Common Patterns -->
+            <div class="input-field">
+                <label for="validate_common">Check Against Common Patterns?</label>
+                <div class="description">
+                    If <strong>Yes</strong>, the generated password is validated against known weak or common passwords
+                    (like "123456" or "password").
+                </div>
+                <select name="validate_common" id="validate_common">
+                    <option value="yes" selecte>Yes</option>
+                    <option value="no">No</option>
+                </select>
+            </div>
+
+            <!-- QKD Simulation -->
+            <div class="input-field">
+                <label for="qkd_sim">Simulate QKD?</label>
+                <div class="description">
+                    QKD (Quantum Key Distribution) demonstration.
+                    If <strong>Yes</strong>, you see how the generated password could be shared via a quantum-safe
+                    channel.
+                </div>
+                <select name="qkd_sim" id="qkd_sim">
+                    <option value="yes" selected>Yes</option>
+                    <option value="no">No</option>
+                </select>
+            </div>
+
+            <!-- Additional Tips or Warnings for Beginners -->
+            <div class="help-box">
+                <strong>Tips:</strong>
+                <ul style="margin:0 0 0 1em; padding:0;">
+                    <li>For a quick test, try 8 qubits, 1 shot, 12-character length.</li>
+                    <li>Check "Lowercase", "Uppercase", and "Digits" for a balanced password.</li>
+                    <li>Use <strong>Validate Common Patterns</strong> to avoid extremely common combos.</li>
+                    <li>Enabling QKD adds a step to simulate a quantum-safe key exchange (slightly longer process).</li>
+                </ul>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="button">Generate Password</button>
+        </form>
+    </div>
+</body>
+
+</html>
